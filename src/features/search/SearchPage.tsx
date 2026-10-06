@@ -35,7 +35,7 @@ export function SearchPage() {
           type="search"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="搜索剧名、演员、题材"
+          placeholder="搜索剧名、题材"
           aria-label="搜索关键词"
           autoFocus
         />
@@ -45,7 +45,7 @@ export function SearchPage() {
       </form>
 
       {query === '' ? (
-        <p className="search__idle">输入剧名、演员或题材，回车搜索。</p>
+        <p className="search__idle">输入剧名或题材，回车搜索。</p>
       ) : null}
 
       {/* 搜索失败是接口能力边界, 不是用户操作失误, 所以给一条替代路径而不是只甩报错 */}

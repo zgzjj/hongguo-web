@@ -63,7 +63,7 @@ export function useBrowse(params: BrowseParams, enabled = true) {
 
 /**
  * /browse 的翻页版: 首屏 BROWSE_LIMIT 条, 之后按服务端给的 next_offset 往后取。
- * 厂商后端只认 limit, 那儿的 has_more 是 undefined, 会自然退化成"只有一页"。
+ * 老版自研后端不带 next_offset/has_more, 那儿的 has_more 是 undefined, 会自然退化成"只有一页"。
  */
 export function useBrowseInfinite(params: BrowseParams, enabled = true) {
   // offset 交给 pageParam, queryKey 里必须抹平 —— 否则每翻一页都会多出一个独立缓存条目

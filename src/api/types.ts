@@ -32,10 +32,11 @@ export const BROWSE_SORTS: readonly { id: BrowseSort; name: string }[] = [
 ] as const
 
 /**
- * /browse 首屏一次取多少条。翻页本身走 offset(见 useBrowseInfinite), 这里只管第一批:
- * 服务端是逐页 18 条往上凑的, 实测 60 条约 3 秒、120 条约 6 秒 —— 再大首屏就光看骨架屏了。
+ * /browse 首屏一次取多少条。翻页本身走 offset(见 useBrowseInfinite), 这里只管第一批。
+ * 自研后端已改成"一次向厂商要满"(厂商单次上限 500 条), 实测 100 条约 0.9 秒 —— 取多少
+ * 不再是瓶颈; 定 36 是为了首屏少渲染几十张封面图, 其余交给「加载更多」。
  */
-export const BROWSE_LIMIT = 100
+export const BROWSE_LIMIT = 36
 
 /** 剧(列表项)。/rank、/latest、/browse 共用这套字段, 各自多几个专有字段。 */
 export interface Series {
