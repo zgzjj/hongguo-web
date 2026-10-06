@@ -15,6 +15,7 @@ import { Chip, ChipRow } from '@/components/ui/Chip'
 import { Icon } from '@/components/ui/Icon'
 import { GenreSwitch } from '@/features/browse/GenreSwitch'
 import { useGenre } from '@/features/browse/useGenre'
+import { MOBILE_QUERY, useMediaQuery } from '@/lib/useMediaQuery'
 import './explore.css'
 
 /** 行 type → 选中项 id, 空串表示「全部」 */
@@ -84,7 +85,10 @@ function mergePages(pages: BrowseResponse[] | undefined): Series[] {
 export function ExplorePage() {
   const [genre] = useGenre()
   const [selection, setSelection] = useState<Selection>({})
-  const [panelOpen, setPanelOpen] = useState(true)
+  // 手机端默认收起。面板是六行 chip 全铺开, 展开着进去只能看见筛选条件、看不见剧。
+  // 桌面端一直展开 —— 那个断点下没有折叠按钮, 收起就没法展开了。
+  const isMobile = useMediaQuery(MOBILE_QUERY)
+  const [panelOpen, setPanelOpen] = useState(!isMobile)
 
   // 各体裁的维度项完全不同, 换体裁必须清空, 否则会带着上一个体裁的 cate_ id
   useEffect(() => {

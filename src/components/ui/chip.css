@@ -39,7 +39,7 @@
 
 .chip-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   min-width: 0;
 }
@@ -47,12 +47,17 @@
 .chip-row__label {
   flex: 0 0 auto;
   width: 62px;
+  /* 让标签文字落在第一行 chip 的文字线上, 而不是和整块 chip 垂直居中 */
+  padding-top: 9px;
   font-size: var(--fs-xs);
   color: var(--text-faint);
 }
 
+/* 换行铺开: 必须有确定宽度才能换行, 所以这里是 flex:1 而不是靠内容撑开 */
 .chip-row__track {
+  flex: 1 1 auto;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 2px 0;
   min-width: 0;
@@ -69,6 +74,7 @@
   .chip-row__label {
     display: block;
     width: auto;
+    padding-top: 0;
     margin-bottom: 6px;
   }
 }

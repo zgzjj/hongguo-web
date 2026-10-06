@@ -27,12 +27,15 @@ export interface ChipRowProps {
   label?: string
 }
 
-/** 横向可滚动的一行 chip, 隐藏滚动条 */
+/**
+ * 一行 chip。放不下就换行铺开, 不做横向滚动 ——
+ * 选项要一眼看得全, 让人先滑动才知道有什么, 等于把一半选项藏起来了。
+ */
 export function ChipRow({ children, label }: ChipRowProps) {
   return (
     <div className="chip-row">
       {label ? <span className="chip-row__label">{label}</span> : null}
-      <div className="chip-row__track scroll-x">{children}</div>
+      <div className="chip-row__track">{children}</div>
     </div>
   )
 }
