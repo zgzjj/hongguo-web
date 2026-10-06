@@ -58,10 +58,12 @@
   padding: 0 11px;
 }
 
-/* 固定 54px 一格: 和主流平台一样是一排小方块, 不随宽度拉成大方块 */
+/* 固定 54px 一格: 和主流平台一样是一排小方块, 不随容器拉成大方块。
+   详情页、播放器侧栏、手机抽屉三处容器宽度差很多, 用固定宽才能让格子一样大。 */
 .ep-grid__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  grid-template-columns: repeat(auto-fill, 54px);
+  justify-content: start;
   gap: 8px;
   align-content: start;
 }
@@ -69,6 +71,11 @@
 .ep-cell {
   display: grid;
   place-items: center;
+  /*
+   * width: 100% 不能省。Chromium 里 <button> 的 width:auto 是收缩宽度(只有 <a> 才撑满),
+   * 少了这句, 播放器里(按钮)的格子会按内容收缩 —— "1" 比 "30" 窄一截, 一排看着参差不齐。
+   */
+  width: 100%;
   height: 44px;
   border-radius: var(--r-md);
   border: 1px solid var(--line);
@@ -97,11 +104,7 @@
 }
 
 @media (max-width: 720px) {
-  /* 手机上固定 5 列, 一行能扫完一段的零头 */
-  .ep-grid__list {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
+  /* 列数交给 auto-fill(390px 宽正好 5 列), 这里只压一点高度, 保住格子宽度和桌面一致 */
   .ep-cell {
     height: 42px;
   }

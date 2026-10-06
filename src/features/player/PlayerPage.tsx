@@ -255,6 +255,7 @@ function PlayerMobile({
                 compact
                 nextIndex={nextIndexOf(episodes, episode.index)}
                 onEnded={onEnded}
+                onOpenSheet={() => setSheetOpen(true)}
               />
             ) : null}
           </section>
@@ -272,14 +273,6 @@ function PlayerMobile({
             total={episodes.length}
             duration={episodes.find((item) => item.index === current)?.duration}
           />
-        </div>
-
-        <div className="player__bottom">
-          <span className="player__swipe-hint">上下滑动切换集数</span>
-          <button type="button" className="player__sheet-btn" onClick={() => setSheetOpen(true)}>
-            <Icon name="rank" size={15} />
-            选集
-          </button>
         </div>
       </div>
 

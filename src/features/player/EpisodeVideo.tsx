@@ -19,6 +19,8 @@ export interface EpisodeVideoProps {
   /** 下一集的集号, 没有下一集传 null */
   nextIndex: number | null
   onEnded: () => void
+  /** 手机端把"选集"入口并进控制条, 由外层给开抽屉的动作 */
+  onOpenSheet?: () => void
 }
 
 type VideoState = 'loading' | 'ready' | 'blocked' | 'error'
@@ -42,7 +44,15 @@ function supportsFullscreen(video: HTMLVideoElement | null): boolean {
  * 画面按原始宽高比自适应, 剩下的空白用本集封面的模糊层填上 ——
  * 竖屏剧在横屏舞台上是窄窄一条, 纯黑边看着像没加载出来。
  */
-export function EpisodeVideo({ seriesId, episode, active, compact, nextIndex, onEnded }: EpisodeVideoProps) {
+export function EpisodeVideo({
+  seriesId,
+  episode,
+  active,
+  compact,
+  nextIndex,
+  onEnded,
+  onOpenSheet,
+}: EpisodeVideoProps) {
   const shellRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [state, setState] = useState<VideoState>('loading')
@@ -243,6 +253,7 @@ export function EpisodeVideo({ seriesId, episode, active, compact, nextIndex, on
           visible={controlsVisible}
           compact={compact}
           chrome={chrome}
+          onOpenSheet={onOpenSheet}
         />
       ) : null}
     </div>

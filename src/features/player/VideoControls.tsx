@@ -24,6 +24,8 @@ export interface VideoControlsProps {
   /** 手机端: 音量/亮度/倍速收进弹出面板, 控制条只留 播放/进度/设置/全屏 */
   compact: boolean
   chrome: VideoChrome
+  /** 手机端"选集"入口。放进控制条而不是单独占一行, 免得和弹出的设置面板抢同一块地方 */
+  onOpenSheet?: () => void
 }
 
 type Panel = 'rate' | 'setup' | null
@@ -36,6 +38,7 @@ export function VideoControls({
   visible,
   compact,
   chrome,
+  onOpenSheet,
 }: VideoControlsProps) {
   const [panel, setPanel] = useState<Panel>(null)
 
@@ -174,6 +177,13 @@ export function VideoControls({
               }}
             >
               <Icon name="settings" size={20} />
+            </button>
+          ) : null}
+
+          {compact && onOpenSheet ? (
+            <button type="button" className="vc__btn vc__btn--sheet" onClick={onOpenSheet}>
+              <Icon name="rank" size={16} />
+              选集
             </button>
           ) : null}
 
