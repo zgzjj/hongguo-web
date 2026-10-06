@@ -1,0 +1,34 @@
+.discover__section {
+  margin-bottom: 42px;
+}
+
+.discover__section:last-child {
+  margin-bottom: 0;
+}
+
+.discover__tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.discover__mode {
+  margin: -6px 0 16px;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+@media (max-width: 720px) {
+  .discover__section {
+    margin-bottom: 30px;
+  }
+
+  /* 手机上标题行放不下 tab, 让 tab 独占一行 */
+  .discover__tabs {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .discover__mode {
+    margin-top: 6px;
+  }
+}

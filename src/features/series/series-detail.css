@@ -1,0 +1,270 @@
+.detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 18px;
+  padding: 6px 12px 6px 8px;
+  border-radius: var(--r-full);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.detail__back:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.detail__head {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 44px;
+}
+
+.detail__poster {
+  flex: 0 0 auto;
+  width: 216px;
+  box-shadow: var(--sh-3);
+}
+
+.detail__info {
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.detail__title {
+  font-size: var(--fs-h1);
+  line-height: 1.2;
+}
+
+.detail__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.detail__status {
+  padding: 3px 10px;
+  border-radius: var(--r-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.detail__meta-item {
+  padding: 3px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+}
+
+.detail__tags {
+  margin: 16px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.detail__intro {
+  margin: 12px 0 0;
+  max-width: 64ch;
+  font-size: var(--fs-sm);
+  line-height: 1.85;
+  color: var(--text-dim);
+}
+
+.detail__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.detail__play {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 44px;
+  padding: 0 26px;
+  border-radius: var(--r-full);
+  background: var(--grad);
+  color: #fff;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  box-shadow: var(--sh-glow);
+  transition:
+    transform var(--dur) var(--ease),
+    filter var(--dur) var(--ease);
+}
+
+.detail__play:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.detail__fav {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  transition:
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.detail__fav:hover {
+  border-color: var(--surface-3);
+  background: var(--surface-2);
+}
+
+.detail__fav.is-on {
+  color: var(--accent);
+  border-color: var(--accent-ring);
+  background: var(--accent-soft);
+}
+
+.detail__facts {
+  display: flex;
+  gap: 36px;
+  margin: 28px 0 0;
+}
+
+.detail__facts dt {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+.detail__facts dd {
+  margin: 4px 0 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---- 演员表 / 选集 ---- */
+.detail__section-title {
+  font-size: var(--fs-h2);
+  margin-bottom: 16px;
+}
+
+.detail__cast {
+  margin-bottom: 44px;
+}
+
+.cast-rail {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.cast-card {
+  flex: 0 0 auto;
+  width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.cast-card__avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-2);
+  /*
+   * 边框得亮过 --line。剧照整体偏暗(实测这个剧 17 张里有 8 张是深色调),
+   * 68px 的小圆用 --line 勾不出轮廓, 在深底上看着就是个"空位";
+   * 再补一层投影把头像从背景上抬起来。
+   */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+.cast-card__blank {
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  /* 没有头像就用姓名首字兜底。用 faint 的话在深底上几乎看不见, 分不清是占位还是空位 */
+  color: var(--text-dim);
+  background: var(--surface-3);
+}
+
+.cast-card__name,
+.cast-card__role {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cast-card__name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cast-card__role {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+@media (max-width: 720px) {
+  .detail__head {
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 30px;
+  }
+
+  .detail__poster {
+    width: 132px;
+  }
+
+  .detail__title {
+    font-size: var(--fs-h2);
+  }
+
+  .detail__intro {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .detail__actions {
+    margin-top: 18px;
+  }
+
+  .detail__play,
+  .detail__fav {
+    flex: 1;
+    justify-content: center;
+    height: 42px;
+    padding: 0 14px;
+  }
+
+  .detail__facts {
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .detail__cast {
+    margin-bottom: 30px;
+  }
+}

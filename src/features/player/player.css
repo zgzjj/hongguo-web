@@ -1,0 +1,693 @@
+.player {
+  height: 100dvh;
+  background: #000;
+  overflow: hidden;
+}
+
+.player--state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg);
+}
+
+.player__exit {
+  padding: 8px 20px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+}
+
+.player__exit:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.player__icon-btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  transition: background var(--dur) var(--ease);
+}
+
+.player__icon-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.player__heading {
+  min-width: 0;
+}
+
+.player__series {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+}
+
+.player__ep {
+  margin: 3px 0 0;
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.72);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* ============ 播放器本体 ============ */
+.ep-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  /*
+   * 行列都必须钉死成容器尺寸。默认的 auto 轨道会按内容撑开 —— 竖屏剧固有高 1920,
+   * 轨道就跟着变 1920, 下面 max-height:100% 于是解析成 1920, 画面直接被裁掉一半。
+   */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  /* 模糊层故意放大出界, 这里裁掉, 免得在容器边上糊出一圈 */
+  overflow: hidden;
+}
+
+/*
+ * 画面自己按原始宽高比撑开: <video> 是替换元素, 只给 max-width/max-height
+ * 就会等比缩到容器里, 元素盒子 == 画面盒子。这样留白区域才能被单独填上背景,
+ * 而不是像以前那样整个舞台都是黑的、画面缩在中间一小块。
+ */
+.ep-video__el {
+  position: relative;
+  z-index: 2;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* 本集封面糊成背景铺满留白 —— 竖屏剧在横屏舞台上只占中间一条, 纯黑边像没加载出来 */
+.ep-video__backdrop {
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  filter: blur(30px) saturate(1.3);
+  opacity: 0.55;
+}
+
+.ep-video__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(6, 7, 10, 0.28) 0%, rgba(6, 7, 10, 0.72) 100%);
+}
+
+/* 浮层一律不接收指针事件, 否则会吃掉竖向滑动 */
+.ep-video__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  pointer-events: none;
+  background: rgba(6, 7, 10, 0.72);
+}
+
+.ep-video__spin {
+  animation: state-spin 900ms linear infinite;
+  color: var(--accent);
+}
+
+.ep-video__msg {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: #fff;
+}
+
+.ep-video__sub {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ep-video__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 22px;
+  border-radius: var(--r-full);
+  background: var(--grad);
+  color: #fff;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  box-shadow: var(--sh-glow);
+  pointer-events: auto;
+}
+
+/* ============ 控制条 ============ */
+/*
+ * touch-action: pan-y 是这里的关键 —— 控制条自己收指针事件(滑块要能拖),
+ * 但竖向滑动必须继续交给外层 feed, 否则屏幕底部这一条就成了滑动死区。
+ */
+.vc {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 30px 14px calc(env(safe-area-inset-bottom) + 12px);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 52%, rgba(0, 0, 0, 0.82) 100%);
+  touch-action: pan-y;
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+.vc.is-hidden {
+  opacity: 0;
+  transform: translateY(8px);
+  /* 藏起来就得彻底让路, 不然透明的一块还在吃手势 */
+  pointer-events: none;
+}
+
+.vc__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vc__btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  height: 34px;
+  min-width: 34px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  color: rgba(255, 255, 255, 0.9);
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.vc__btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.vc__btn--play {
+  min-width: 38px;
+  height: 38px;
+}
+
+.vc__btn--text {
+  padding: 0 9px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.vc__btn--sm {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: var(--fs-xs);
+}
+
+.vc__btn--static {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.vc__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.vc__group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ---- 进度条 ---- */
+.seek {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.seek__time {
+  flex: 0 0 auto;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+.seek__sep {
+  margin: 0 3px;
+  opacity: 0.5;
+}
+
+.seek__rail {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  margin: 10px 0;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.26);
+  cursor: pointer;
+  /* 横向拖动归进度条, 竖向仍然交给 feed 滚动 */
+  touch-action: none;
+}
+
+/* 4px 的轨道手指点不中, 用伪元素把热区撑到 30px */
+.seek__rail::after {
+  content: '';
+  position: absolute;
+  inset: -13px 0;
+}
+
+.seek__buffer,
+.seek__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--r-full);
+  pointer-events: none;
+}
+
+.seek__buffer {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.seek__fill {
+  background: var(--grad);
+}
+
+.seek__knob {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  transform: translateY(-50%) scale(0.7);
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+/* 触摸屏没有 hover, 所以拖动时也要显出来 */
+.seek__rail:hover .seek__knob,
+.seek__rail.is-scrubbing .seek__knob,
+.seek__rail:focus-visible .seek__knob {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.seek__rail:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+/* ---- 音量 / 亮度滑块 ---- */
+.vc__slider {
+  width: 76px;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.vc__slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.vc__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
+}
+
+.vc__slider::-moz-range-track {
+  height: 4px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.vc__slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
+}
+
+.vc__slider:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-full);
+}
+
+/* ---- 弹出面板(倍速 / 手机上的音量亮度) ---- */
+.vc__panel {
+  position: absolute;
+  right: 12px;
+  bottom: calc(100% + 6px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: rgba(18, 19, 26, 0.95);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--sh-3);
+}
+
+.vc__panel--setup {
+  flex-direction: column;
+  width: min(258px, 76vw);
+  gap: 13px;
+  padding: 14px;
+}
+
+.vc__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vc__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+.vc__field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vc__panel--setup .vc__slider {
+  flex: 1;
+  width: auto;
+}
+
+.vc__rates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vc__rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.vc__rate:hover {
+  color: var(--text);
+}
+
+.vc__rate.is-on {
+  color: #fff;
+  border-color: transparent;
+  background: var(--grad);
+}
+
+/* ============ 手机: 一屏一集 ============ */
+.player--mobile {
+  position: relative;
+}
+
+.player__feed {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+}
+
+.player__feed::-webkit-scrollbar {
+  display: none;
+}
+
+.player__slide {
+  position: relative;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.player__chrome {
+  position: absolute;
+  inset: 0;
+  /*
+   * 必须高过 <video>(z-index 2) 和下面那条控制条(z-index 5)。
+   * 竖屏画面在手机上几乎铺满整屏, 会盖住底部那行 —— "选集"是手机上跳集的唯一入口,
+   * 被盖住就点不到了。
+   */
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* 底部留出控制条的高度, 否则"选集"那行会被压在进度条上 */
+  padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 84px);
+  pointer-events: none;
+  /* 底部压暗交给控制条自己的渐变, 这里只管顶部 */
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 16%);
+}
+
+.player__chrome button {
+  pointer-events: auto;
+}
+
+.player__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.player__swipe-hint {
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.62);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+}
+
+.player__sheet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--r-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* ============ 选集抽屉 ============ */
+.ep-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.ep-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  border: 0;
+}
+
+.ep-sheet__body {
+  position: relative;
+  max-height: 72dvh;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.ep-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.ep-sheet__title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ep-sheet__count {
+  margin: 4px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+.ep-sheet__close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  color: var(--text-dim);
+}
+
+.ep-sheet__close:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* 宫格本身在 episode-grid.css, 这里只管滚动容器 */
+.ep-sheet__scroll {
+  overflow-y: auto;
+  padding: 16px 18px 20px;
+}
+
+/* ============ 桌面: 舞台 + 选集面板 ============ */
+.player--desktop {
+  display: flex;
+  gap: 1px;
+  background: var(--line-soft);
+}
+
+.player__stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.player__stage-bar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  /* 同 .player__chrome: 画面是 z-index 2, 不抬起来的话标题一长就被画面盖掉 */
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.player__stage-bar button {
+  pointer-events: auto;
+}
+
+.player__panel {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  min-height: 0;
+}
+
+.player__panel-head {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.player__panel-title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.player__panel-sub {
+  margin: 5px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+/* 宫格本身在 episode-grid.css */
+.player__panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+}

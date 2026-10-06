@@ -1,0 +1,100 @@
+.state-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 56px 20px;
+  color: var(--text-dim);
+  font-size: var(--fs-body);
+  text-align: center;
+}
+
+.state-block__title {
+  color: var(--text);
+  font-weight: 700;
+  font-size: var(--fs-h3);
+}
+
+.state-block__hint {
+  max-width: 46ch;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--text-faint);
+}
+
+.state-block--error .state-block__title {
+  color: var(--danger);
+}
+
+.state-block__retry {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  transition:
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.state-block__retry:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.state-block__action {
+  margin-top: 10px;
+}
+
+.state-block__spin {
+  animation: state-spin 900ms linear infinite;
+  color: var(--accent);
+}
+
+/* ---- 骨架屏 (列数必须与 series-grid 一致, 否则加载完会跳一下) ---- */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 26px 16px;
+}
+
+.skeleton-card__poster {
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r-lg);
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-card__line {
+  height: 12px;
+  margin-top: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-card__line--short {
+  width: 55%;
+  margin-top: 8px;
+}
+
+@media (max-width: 1180px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 22px 14px;
+  }
+}
+
+@media (max-width: 720px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 10px;
+  }
+}

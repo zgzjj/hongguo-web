@@ -1,0 +1,102 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 var(--gutter);
+  background: rgba(10, 10, 15, 0.82);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+/* 桌面侧栏已经有字标了, 顶栏这块只在手机出现 */
+.topbar__brand {
+  display: none;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: var(--tracking-tight);
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.topbar__search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(320px, 34vw);
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-faint);
+  transition:
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.topbar__search:focus-within {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.topbar__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.topbar__search input::placeholder {
+  color: var(--text-faint);
+}
+
+.topbar__settings {
+  flex: 0 0 auto;
+  display: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  color: var(--text-dim);
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.topbar__settings:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    gap: 10px;
+    padding: 0 14px;
+  }
+
+  .topbar__brand {
+    display: block;
+  }
+
+  .topbar__search {
+    width: auto;
+    flex: 1;
+    margin-left: 0;
+    height: 36px;
+  }
+
+  /* 底部 tab 栏在手机上隐去了「设置」, 改由这里进 */
+  .topbar__settings {
+    display: grid;
+  }
+}

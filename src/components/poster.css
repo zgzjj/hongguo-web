@@ -1,0 +1,61 @@
+.poster {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--surface-2);
+  isolation: isolate;
+}
+
+.poster__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 320ms var(--ease);
+}
+
+.poster__img[data-state='ready'] {
+  opacity: 1;
+}
+
+/* 加载中: 微光扫过 */
+.poster__ph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* 失败: 静态色块 + 首字, 比破图体面 */
+.poster__ph[data-kind='error'] {
+  animation: none;
+  background: linear-gradient(150deg, var(--surface-2), var(--surface-3));
+}
+
+.poster__initial {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--text-faint);
+  user-select: none;
+}
+
+.poster__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .poster {
+    border-radius: var(--r-md);
+  }
+  .poster__initial {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,99 @@
+/* ============================================================
+   设计令牌 —— 暗夜影院 (Dark Cinema)
+   短剧的核心体验是沉浸看剧: 暗色底让竖屏视频成为画面上唯一的光源。
+   浅色主题待设计, 预留 [data-theme="light"] 覆盖层(见文件末尾)。
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- 品牌 ---- */
+  --accent: #ff2d55;
+  --accent-2: #ff6b35;
+  --grad: linear-gradient(135deg, var(--accent), var(--accent-2));
+  --accent-soft: rgba(255, 45, 85, 0.14);
+  --accent-ring: rgba(255, 45, 85, 0.32);
+
+  /* ---- 底 / 面 ---- */
+  --bg: #0a0a0f;
+  --surface: #16171e;
+  --surface-2: #1d1f28;
+  --surface-3: #262933;
+  --line: #272c35;
+  --line-soft: #1f232b;
+
+  /* ---- 文字 ---- */
+  --text: #f2f3f7;
+  --text-dim: #8a8f9c;
+  --text-faint: #5c6270;
+
+  /* ---- 语义色 ---- */
+  --ok: #2fbf71;
+  --warn: #f5a524;
+  --danger: #ff4d4f;
+
+  /* ---- 圆角 ---- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-full: 999px;
+
+  /* ---- 阴影 / 深度 ---- */
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --sh-2: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --sh-3: 0 18px 50px rgba(0, 0, 0, 0.7);
+  --sh-glow: 0 6px 20px rgba(255, 45, 85, 0.35);
+
+  /* ---- 排版 ----
+     说明: 设计稿用的思源黑体 Heavy 未内置 —— 中文字体文件 5~10MB,
+     局域网加载不划算。改用系统字体栈 + 重字重 + 收紧字距还原厚重感。 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif;
+  --font-num: "SF Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+
+  --fs-display: clamp(28px, 3.2vw, 44px);
+  --fs-h1: clamp(22px, 2.2vw, 30px);
+  --fs-h2: 20px;
+  --fs-h3: 16px;
+  --fs-body: 14px;
+  --fs-sm: 13px;
+  --fs-xs: 12px;
+
+  --tracking-tight: -0.03em;
+  --tracking-normal: -0.01em;
+
+  /* ---- 布局 ---- */
+  --sidebar-w: 88px;
+  --header-h: 64px;
+  --content-max: 1560px;
+  --gutter: 28px;
+
+  /* ---- 动效 ---- */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 220ms;
+  --dur-slow: 420ms;
+}
+
+/* 平板: 收窄侧栏与留白 */
+@media (max-width: 1180px) {
+  :root {
+    --sidebar-w: 76px;
+    --gutter: 20px;
+  }
+}
+
+/* 手机: 侧栏转为底部 tab 栏 */
+@media (max-width: 720px) {
+  :root {
+    --sidebar-w: 0px;
+    --header-h: 56px;
+    --gutter: 14px;
+  }
+}
+
+/* ============================================================
+   浅色主题 —— 待设计(用户要求后续再做)
+   届时在此覆盖上面同名令牌即可, 组件层不需要改。
+   ============================================================ */
+/* :root[data-theme="light"] { ... } */

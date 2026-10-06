@@ -1,0 +1,67 @@
+.genre-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.genre-switch__item {
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.genre-switch__item:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.genre-switch__item.is-on,
+.genre-switch__item.is-on:hover {
+  background: var(--grad);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--sh-glow);
+}
+
+/* 页面内的那套: 手机才出现, 横向可滚 */
+.genre-switch--page {
+  margin-bottom: 16px;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.genre-switch--page::-webkit-scrollbar {
+  display: none;
+}
+
+.genre-switch--page .genre-switch__item {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.genre-switch--page .genre-switch__item.is-on {
+  border-color: transparent;
+  background: var(--grad);
+}
+
+/* 桌面隐藏页面内的那套 */
+@media (min-width: 721px) {
+  .genre-switch--page {
+    display: none;
+  }
+}
+
+/* 手机隐藏顶栏的那套 */
+@media (max-width: 720px) {
+  .genre-switch--topbar {
+    display: none;
+  }
+}

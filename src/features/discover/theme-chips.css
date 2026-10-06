@@ -1,0 +1,37 @@
+.theme-chips {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  min-width: 0;
+}
+
+.theme-chips__track {
+  display: flex;
+  gap: 8px;
+  padding: 2px 0;
+  min-width: 0;
+  flex: 1;
+}
+
+.theme-chips__more {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  white-space: nowrap;
+  transition: color var(--dur) var(--ease);
+}
+
+.theme-chips__more:hover {
+  color: var(--accent);
+}
+
+/* 手机走类型 chip, 主题 chip 让位 */
+@media (max-width: 720px) {
+  .theme-chips {
+    display: none;
+  }
+}

@@ -1,0 +1,118 @@
+.search {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search__form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 8px 0 16px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-faint);
+  transition: border-color var(--dur) var(--ease);
+}
+
+.search__form:focus-within {
+  border-color: var(--accent-ring);
+}
+
+.search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: var(--fs-body);
+}
+
+.search__input::placeholder {
+  color: var(--text-faint);
+}
+
+.search__input::-webkit-search-cancel-button {
+  filter: invert(0.6);
+}
+
+.search__submit {
+  flex: 0 0 auto;
+  height: 34px;
+  padding: 0 18px;
+  border-radius: var(--r-full);
+  background: var(--grad);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.search__idle,
+.search__count {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}
+
+.search__fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 22px 24px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.search__fallback-title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.search__fallback-hint {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
+.search__fallback-detail {
+  margin: 0;
+  font-family: var(--font-num);
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+.search__fallback-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.search__fallback-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.search__fallback-link:hover {
+  color: var(--text);
+  border-color: var(--surface-3);
+}

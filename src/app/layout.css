@@ -1,0 +1,27 @@
+/* 整屏宽度上限放在外壳上, 这样顶栏与内容区左右边界始终对齐 */
+.app-shell {
+  display: flex;
+  min-height: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.app-shell__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell__content {
+  flex: 1;
+  min-width: 0;
+  padding: 26px var(--gutter) 72px;
+}
+
+@media (max-width: 720px) {
+  /* 底部 tab 栏是 fixed 的, 内容区留出安全区高度 */
+  .app-shell__content {
+    padding: 16px var(--gutter) calc(78px + env(safe-area-inset-bottom));
+  }
+}

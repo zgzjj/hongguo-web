@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="红果短剧">
+  <defs>
+    <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff2d55" />
+      <stop offset="1" stop-color="#ff6b35" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="9" fill="url(#hg)" />
+  <path d="M12.6 9.2 23 16l-10.4 6.8z" fill="#fff" />
+</svg>

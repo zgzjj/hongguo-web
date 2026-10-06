@@ -1,0 +1,18 @@
+.rank-page__boards {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rank-page__boards::-webkit-scrollbar {
+  display: none;
+}
+
+.rank-page__note {
+  margin: -8px 0 18px;
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+  line-height: 1.6;
+}

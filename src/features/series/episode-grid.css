@@ -1,0 +1,108 @@
+/* 选集宫格 —— 详情页、播放器侧栏、手机选集抽屉共用一套 */
+.ep-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ep-grid__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 段标签可能很多(209 集 = 7 段), 横向滚动 */
+.ep-grid__tabs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  padding-bottom: 2px;
+}
+
+.ep-grid__tab,
+.ep-grid__sort {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 13px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.ep-grid__tab:hover,
+.ep-grid__sort:hover {
+  color: var(--text);
+  border-color: var(--surface-3);
+}
+
+.ep-grid__tab.is-on {
+  color: #fff;
+  border-color: transparent;
+  background: var(--grad);
+}
+
+.ep-grid__sort {
+  padding: 0 11px;
+}
+
+/* 固定 54px 一格: 和主流平台一样是一排小方块, 不随宽度拉成大方块 */
+.ep-grid__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+
+.ep-cell {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.ep-cell:hover {
+  color: var(--text);
+  border-color: var(--surface-3);
+  background: var(--surface-2);
+}
+
+.ep-cell.is-on {
+  color: #fff;
+  border-color: transparent;
+  background: var(--grad);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  /* 手机上固定 5 列, 一行能扫完一段的零头 */
+  .ep-grid__list {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .ep-cell {
+    height: 42px;
+  }
+}

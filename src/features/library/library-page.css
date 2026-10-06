@@ -1,0 +1,20 @@
+/* 收藏 / 历史两个二级页共用的外壳与引导按钮 */
+.library-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.library-page__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: var(--r-full);
+  background: var(--grad);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  box-shadow: var(--sh-glow);
+}

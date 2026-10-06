@@ -1,0 +1,146 @@
+/* 桌面/平板: 左侧竖排导轨 */
+.sidebar {
+  flex: 0 0 var(--sidebar-w);
+  width: var(--sidebar-w);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 8px 24px;
+  border-right: 1px solid var(--line-soft);
+  z-index: 30;
+}
+
+.sidebar__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 16px;
+}
+
+.sidebar__logo {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--grad);
+  color: #fff;
+  box-shadow: var(--sh-glow);
+}
+
+.sidebar__wordmark {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: var(--tracking-tight);
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sidebar__list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 11px 4px;
+  border-radius: var(--r-md);
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease);
+}
+
+.sidebar__item:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.sidebar__item.is-active {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.sidebar__item.is-active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 3px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: var(--r-full);
+  background: var(--grad);
+  box-shadow: var(--sh-glow);
+}
+
+.sidebar__item.is-active svg {
+  color: var(--accent);
+}
+
+/* 手机: 导轨转为底部 tab 栏 */
+@media (max-width: 720px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: auto;
+    height: auto;
+    flex-direction: row;
+    gap: 0;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    border-right: 0;
+    border-top: 1px solid var(--line-soft);
+    background: rgba(10, 10, 15, 0.9);
+    backdrop-filter: blur(16px);
+  }
+
+  .sidebar__brand {
+    display: none;
+  }
+
+  .sidebar__list {
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .sidebar__list li {
+    flex: 1;
+  }
+
+  .sidebar__item {
+    padding: 7px 2px;
+    gap: 3px;
+    font-size: 10px;
+  }
+
+  .sidebar__item.is-active,
+  .sidebar__item:hover {
+    background: none;
+  }
+
+  .sidebar__item.is-active::before {
+    display: none;
+  }
+
+  /* 手机上的设置改由顶栏齿轮进入; li 也得一起藏, 否则它仍占着 1/6 的 flex 宽度, 底栏右边会空一格 */
+  .sidebar__list li:has(.sidebar__item--secondary) {
+    display: none;
+  }
+}

@@ -1,0 +1,212 @@
+.series-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.series-card__link {
+  display: block;
+}
+
+.series-card__poster {
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.series-card:hover .series-card__poster {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-2);
+}
+
+/* ---- 海报角标 ----
+   桌面: 左上名次 + 右上热度 (对齐设计稿)
+   手机: 左上名次 + 右上集数 + 左下热度 */
+.series-card__corner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: var(--grad);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--sh-1);
+}
+
+.series-card__heat {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  height: 22px;
+  padding: 0 8px 0 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: var(--r-sm);
+  background: rgba(6, 7, 10, 0.72);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.series-card__heat svg {
+  color: var(--accent-2);
+}
+
+/* 集数角标设计稿里只在手机出现 */
+.series-card__eps {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  height: 20px;
+  padding: 0 7px;
+  align-items: center;
+  border-radius: var(--r-sm);
+  background: rgba(6, 7, 10, 0.72);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ---- 收藏 ---- */
+.series-card__fav {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-full);
+  background: rgba(6, 7, 10, 0.6);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  opacity: 0;
+  transition:
+    opacity var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+.series-card:hover .series-card__fav,
+.series-card__fav:focus-visible,
+.series-card__fav.is-on {
+  opacity: 1;
+}
+
+.series-card__fav:hover {
+  transform: scale(1.08);
+}
+
+.series-card__fav.is-on {
+  color: var(--accent);
+}
+
+/* ---- 文案 ---- */
+.series-card__body {
+  display: block;
+  padding-top: 10px;
+}
+
+.series-card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: var(--tracking-normal);
+  color: var(--text);
+  transition: color var(--dur) var(--ease);
+}
+
+.series-card:hover .series-card__title {
+  color: var(--accent);
+}
+
+.series-card__tags {
+  margin: 5px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.series-card__desc {
+  margin: 4px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 720px) {
+  .series-card__corner {
+    top: 6px;
+    left: 6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    font-size: 11px;
+  }
+
+  .series-card__heat {
+    top: auto;
+    right: auto;
+    bottom: 6px;
+    left: 6px;
+    height: 18px;
+    padding: 0 6px 0 4px;
+    font-size: 10px;
+  }
+
+  .series-card__eps {
+    display: inline-flex;
+    top: 6px;
+    right: 6px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  /* 设计稿的手机卡片没有收藏按钮, 收藏走详情页 */
+  .series-card__fav {
+    display: none;
+  }
+
+  .series-card__body {
+    padding-top: 7px;
+  }
+
+  .series-card__title {
+    font-size: var(--fs-sm);
+  }
+
+  .series-card__tags {
+    margin-top: 3px;
+    color: var(--text-dim);
+  }
+
+  .series-card__desc {
+    display: none;
+  }
+}
