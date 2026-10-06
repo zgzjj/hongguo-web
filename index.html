@@ -2,10 +2,21 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0f" />
     <meta name="color-scheme" content="dark" />
+    <!--
+      iOS 从主屏图标启动时全屏运行, 浏览器工具栏消失 —— 底部 tab 栏才能贴到屏幕底,
+      否则它只能贴到 Safari 工具栏的上边缘。状态栏用 black 而非 black-translucent:
+      后者要求页面自己留 env(safe-area-inset-top), 而布局里还没处理顶部安全区。
+    -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="红果短剧" />
     <meta name="description" content="自建红果短剧前端 —— 局域网内多端无广告观看" />
     <title>红果短剧</title>
   </head>
