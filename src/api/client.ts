@@ -20,6 +20,17 @@ function stripKeyFromUrl(): void {
   window.history.replaceState(null, '', url)
 }
 
+/**
+ * 本地生成一把随机密钥。后端(启动器)会把不认识的密钥自动登记,
+ * 所以首次访问不用手工配置 —— 生成、存下来、直接用。
+ */
+function createKey(): string {
+  const bytes = new Uint8Array(16)
+  crypto.getRandomValues(bytes)
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+  return `hg_${hex}`
+}
+
 export function getApiKey(): string {
   if (cachedKey !== null) return cachedKey
 
@@ -36,11 +47,25 @@ export function getApiKey(): string {
   }
 
   try {
-    cachedKey = localStorage.getItem(KEY_STORAGE) ?? ''
+    const stored = localStorage.getItem(KEY_STORAGE)
+    if (stored) {
+      cachedKey = stored
+      return stored
+    }
   } catch {
-    cachedKey = ''
+    /* 隐私模式下不可读, 落到下面新生成一把 */
   }
-  return cachedKey
+
+  // 首次访问: 生成一把存下来, 后端会自动登记它。
+  // getRandomValues 不需要安全上下文, 局域网 HTTP 下也能用。
+  const fresh = createKey()
+  cachedKey = fresh
+  try {
+    localStorage.setItem(KEY_STORAGE, fresh)
+  } catch {
+    /* 存不下也能用: cachedKey 在本页生命周期内有效 */
+  }
+  return fresh
 }
 
 export function setApiKey(key: string): void {
