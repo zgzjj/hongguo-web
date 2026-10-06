@@ -179,8 +179,12 @@ function PlayerDesktop({
   return (
     <div className="player player--desktop">
       <div className="player__stage">
+        {/*
+          这里故意不加 key: <video> 必须跨集复用。
+          加了 key 就会卸载旧元素再挂新元素, 画中画窗口会继续绑在旧元素上停在最后一帧 ——
+          自动连播正是断在这一步(实测: 换 src 不退出 PiP, 换元素才断)。
+        */}
         <EpisodeVideo
-          key={episode.vid}
           seriesId={seriesId}
           episode={episode}
           active

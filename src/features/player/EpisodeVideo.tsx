@@ -65,6 +65,8 @@ export function EpisodeVideo({
   const [controlsVisible, poke] = useControlsVisibility(active && playback.playing)
 
   const brightness = clampBrightness(prefs.brightness)
+  /** 本屏的流地址。换集或换剧都会变, 是"换源"的唯一判据(换剧时集号可能还是 1) */
+  const src = streamUrl(seriesId, episode.index)
 
   // 这一集真出画面之后才去预热下一集: 那时当前集的解密已经落盘, 不抢 IO。
   // 用 started 而不是 state === 'ready' —— 中途缓冲会来回切 ready/loading, 会重复预热。
@@ -97,7 +99,8 @@ export function EpisodeVideo({
     }
     const timer = window.setTimeout(() => setSlow(true), SLOW_HINT_MS)
     return () => window.clearTimeout(timer)
-  }, [active, state])
+    // 依赖里带 src: 上一集也在 loading 时换源, state 不变, 少了它计时器不会重新开始
+  }, [active, state, src])
 
   const play = useCallback(() => {
     const video = videoRef.current
@@ -115,12 +118,26 @@ export function EpisodeVideo({
     void video.play().catch((error: unknown) => setState(describePlayFailure(error)))
   }, [])
 
+  // 换源(换集/换剧)时把这一屏的界面状态清干净。
+  // 放在渲染期而不是 effect 里: effect 会晚一帧, 那一帧里上一集的 state 还挂在界面上。
+  // (同样是为了跨集复用 <video> 才要手动清 —— 用 key 强制重挂的话画中画连播会断。)
+  const [lastSrc, setLastSrc] = useState(src)
+  if (src !== lastSrc) {
+    setLastSrc(src)
+    setState('loading')
+    setStarted(false)
+    // 慢提示一起清: 否则上一集那次计时的余量会算到新集头上
+    setSlow(false)
+  }
+
+  // 起播 / 暂停。依赖里必须带 src —— 换源时 active 不变,
+  // 少了它换了源就不会自动播(桌面端连播会停在这一步)。
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
     if (active) play()
     else video.pause()
-  }, [active, play])
+  }, [active, play, src])
 
   function toggle() {
     const video = videoRef.current
@@ -185,7 +202,7 @@ export function EpisodeVideo({
         ref={videoRef}
         className="ep-video__el"
         style={{ filter: `brightness(${brightness})` }}
-        src={streamUrl(seriesId, episode.index)}
+        src={src}
         // 非当前集不预载, 否则整部剧同时发请求; 下一集的预热靠 Range 请求单独做
         preload={active ? 'auto' : 'none'}
         playsInline

@@ -37,6 +37,13 @@ export function useVideoPlayback(videoRef: RefObject<HTMLVideoElement | null>): 
       setDuration(Number.isFinite(video.duration) ? video.duration : 0)
       syncTime()
     }
+    // 换源时浏览器会 emptied。不清的话进度条会留着上一集的时长和进度
+    const onEmptied = () => {
+      setPlaying(false)
+      setCurrentTime(0)
+      setBuffered(0)
+      setDuration(0)
+    }
     const onPlay = () => setPlaying(true)
     const onStop = () => setPlaying(false)
 
@@ -48,6 +55,7 @@ export function useVideoPlayback(videoRef: RefObject<HTMLVideoElement | null>): 
     video.addEventListener('loadedmetadata', syncMeta)
     video.addEventListener('durationchange', syncMeta)
     video.addEventListener('seeked', syncTime)
+    video.addEventListener('emptied', onEmptied)
     syncMeta()
 
     return () => {
@@ -59,6 +67,7 @@ export function useVideoPlayback(videoRef: RefObject<HTMLVideoElement | null>): 
       video.removeEventListener('loadedmetadata', syncMeta)
       video.removeEventListener('durationchange', syncMeta)
       video.removeEventListener('seeked', syncTime)
+      video.removeEventListener('emptied', onEmptied)
     }
   }, [videoRef])
 
