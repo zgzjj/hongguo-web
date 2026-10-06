@@ -71,10 +71,9 @@ export function DiscoverPage() {
             </Chip>
           </div>
         </SectionHeader>
-        {/* 后端对粒度是诚实的: 漫剧/AI剧没有「今日」, 只会返回 7 天内, 这里如实照搬 */}
-        {latest.data?.mode ? (
-          <p className="discover__mode">服务端粒度：{latest.data.mode}</p>
-        ) : null}
+        {/* 后端对粒度是诚实的: 漫剧/AI剧没有「今日」, 只会返回 7 天内。
+            这里直接把它的说法照搬给用户 —— 点了「今日上新」却看到 7 天内的剧, 得有个交代 */}
+        {latest.data?.mode ? <p className="discover__mode">{latest.data.mode}</p> : null}
         <SeriesGrid
           items={latest.data?.items}
           loading={latest.isPending}

@@ -4,7 +4,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useSearch } from '@/api/queries'
 import { SeriesGrid } from '@/components/SeriesGrid'
 import { Icon } from '@/components/ui/Icon'
-import { errorMessage } from '@/lib/error'
 import './search.css'
 
 export function SearchPage() {
@@ -46,18 +45,17 @@ export function SearchPage() {
       </form>
 
       {query === '' ? (
-        <p className="search__idle">输入关键词后回车。搜索需要已注册的设备身份，本机通道可能拿不到结果。</p>
+        <p className="search__idle">输入剧名、演员或题材，回车搜索。</p>
       ) : null}
 
       {/* 搜索失败是接口能力边界, 不是用户操作失误, 所以给一条替代路径而不是只甩报错 */}
       {query !== '' && search.error ? (
         <aside className="search__fallback">
-          <p className="search__fallback-title">搜索接口暂不可用</p>
+          <p className="search__fallback-title">暂时搜不了</p>
           <p className="search__fallback-hint">
-            红果网关对搜索要求已注册的设备身份，当前审计通道拿不到，这个请求会稳定失败，重试也没用。
-            可以改用「探索」按题材逐层筛选，或者用「排行榜」按热度找剧。
+            这个功能暂时用不了，重试也不会成功。可以改用「探索」按题材逐层筛选，
+            或者用「排行榜」按热度找剧。
           </p>
-          <p className="search__fallback-detail">接口返回：{errorMessage(search.error)}</p>
           <div className="search__fallback-actions">
             <Link className="search__fallback-link" to="/explore">
               去探索

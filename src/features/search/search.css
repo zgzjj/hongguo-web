@@ -83,13 +83,6 @@
   color: var(--text-dim);
 }
 
-.search__fallback-detail {
-  margin: 0;
-  font-family: var(--font-num);
-  font-size: var(--fs-xs);
-  color: var(--text-faint);
-}
-
 .search__fallback-actions {
   display: flex;
   gap: 10px;
