@@ -28,9 +28,15 @@ type VideoState = 'loading' | 'ready' | 'blocked' | 'error'
 /** 冷启动超过这个时长就换文案 —— 服务端要下载密文再离线解密, 10~60 秒都可能 */
 const SLOW_HINT_MS = 4000
 
-/** 取流失败和"浏览器不许自动播放"是两回事, 别把前者说成后者 */
-function describePlayFailure(error: unknown): VideoState {
-  return error instanceof DOMException && error.name === 'NotAllowedError' ? 'blocked' : 'error'
+/**
+ * 取流失败和"浏览器不许自动播放"是两回事, 别把前者说成后者。
+ * 换源/重试会打断上一次还没落定的 play(), 浏览器拿 AbortError 报这个 —— 那不是失败,
+ * 返回 null 让调用方别动状态(冷启动期间这个窗口能有几秒, 误报会一直挂在界面上)。
+ */
+function describePlayFailure(error: unknown): VideoState | null {
+  if (!(error instanceof DOMException)) return 'error'
+  if (error.name === 'AbortError') return null
+  return error.name === 'NotAllowedError' ? 'blocked' : 'error'
 }
 
 /** iOS Safari 没有元素级全屏, 只有 <video> 自己的 webkitEnterFullscreen */
@@ -102,12 +108,18 @@ export function EpisodeVideo({
     // 依赖里带 src: 上一集也在 loading 时换源, state 不变, 少了它计时器不会重新开始
   }, [active, state, src])
 
+  /** play() 被拒时切到对应状态。换源打断的 AbortError 不算失败, 跳过 */
+  const reportPlayFailure = useCallback((error: unknown) => {
+    const next = describePlayFailure(error)
+    if (next) setState(next)
+  }, [])
+
   const play = useCallback(() => {
     const video = videoRef.current
     if (!video) return
     // 不在这里置 loading: 从暂停恢复不该弹"正在准备视频", 真正的缓冲由 onWaiting 报
-    void video.play().catch((error: unknown) => setState(describePlayFailure(error)))
-  }, [])
+    void video.play().catch(reportPlayFailure)
+  }, [reportPlayFailure])
 
   /** 重试得让浏览器重新走一遍资源选择 —— 光调 play() 不会重发那个失败的请求 */
   const retry = useCallback(() => {
@@ -115,8 +127,8 @@ export function EpisodeVideo({
     if (!video) return
     setState('loading')
     video.load()
-    void video.play().catch((error: unknown) => setState(describePlayFailure(error)))
-  }, [])
+    void video.play().catch(reportPlayFailure)
+  }, [reportPlayFailure])
 
   // 换源(换集/换剧)时把这一屏的界面状态清干净。
   // 放在渲染期而不是 effect 里: effect 会晚一帧, 那一帧里上一集的 state 还挂在界面上。
@@ -262,7 +274,10 @@ export function EpisodeVideo({
       ) : null}
 
       {active ? (
+        // key 只加在不含 <video> 的这一层: 换集时把倍速弹层、拖动中的进度这些局部状态清掉,
+        // 又不碰 <video> 本身 —— 画中画连播靠的正是那个元素的复用。
         <VideoControls
+          key={episode.vid}
           playback={playback}
           prefs={prefs}
           onUpdatePrefs={update}
