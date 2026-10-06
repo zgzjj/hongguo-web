@@ -49,6 +49,7 @@ export function getBrowse(params: BrowseParams, signal?: AbortSignal): Promise<B
       days: params.days,
       status: params.status,
       limit: params.limit,
+      offset: params.offset,
     },
     signal,
   })

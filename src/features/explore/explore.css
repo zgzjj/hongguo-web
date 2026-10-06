@@ -70,6 +70,43 @@
   white-space: nowrap;
 }
 
+/*
+ * 「加载更多」。放在网格下方居中: 翻页是用户主动动作, 不做无限滚动 ——
+ * 探索页的筛选条件一动就重取, 自动加载会让人分不清是新结果还是下一页。
+ */
+.explore__more {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 24px auto 0;
+  padding: 12px 0;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.explore__more:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.explore__more:disabled {
+  color: var(--text-faint);
+  cursor: default;
+}
+
+/* 翻页失败: 由按钮自己说, 不清空上面已经翻出来的内容 */
+.explore__more--error {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
 @media (max-width: 720px) {
   .explore__count {
     display: none;

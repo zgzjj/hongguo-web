@@ -149,7 +149,7 @@ export function SettingsPage() {
         </p>
         <ul className="settings__facts">
           <li>搜索接口要求已注册的设备身份，当前通道返回 <code>100103</code>，所以「搜索」页会降级引导到「探索」。</li>
-          <li>列表接口只认 <code>limit</code>，<code>offset</code>/<code>page</code> 会被忽略，一次最多取 {BROWSE_LIMIT} 条。</li>
+          <li>厂商后端只认 <code>limit</code>，<code>offset</code> 会被忽略；分页是自研后端补的，「探索」页首屏取 {BROWSE_LIMIT} 条，点「加载更多」继续往下翻。</li>
           <li>官方榜单只有漫剧有；真人剧和 AI 剧的排行榜由热度排序顶替。</li>
           <li>「今日上新」只有真人剧能精确到当天，漫剧和 AI 剧只能给到 7 天内。</li>
           <li>视频走服务端离线解密，某一集第一次播放要等 10–60 秒，播过一次之后就快了。</li>

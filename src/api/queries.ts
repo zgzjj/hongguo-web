@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import {
   getBrowse,
   getEpisodes,
@@ -7,7 +7,7 @@ import {
   getRank,
   getSearch,
 } from './endpoints'
-import type { BrowseParams, Genre, RankBoard } from './types'
+import type { BrowseParams, BrowseResponse, Genre, RankBoard } from './types'
 
 /**
  * 服务端数据全是只读 GET, 且后端自己带缓存 ——
@@ -51,10 +51,28 @@ export function useFilters(genre: Genre) {
   })
 }
 
+/** 只取一页 —— 发现页/排行榜用它当兜底数据源, 不需要往下翻 */
 export function useBrowse(params: BrowseParams, enabled = true) {
   return useQuery({
     queryKey: queryKeys.browse(params),
     queryFn: ({ signal }) => getBrowse(params, signal),
+    enabled,
+    staleTime: STALE_MS,
+  })
+}
+
+/**
+ * /browse 的翻页版: 首屏 BROWSE_LIMIT 条, 之后按服务端给的 next_offset 往后取。
+ * 厂商后端只认 limit, 那儿的 has_more 是 undefined, 会自然退化成"只有一页"。
+ */
+export function useBrowseInfinite(params: BrowseParams, enabled = true) {
+  // offset 交给 pageParam, queryKey 里必须抹平 —— 否则每翻一页都会多出一个独立缓存条目
+  const filters = { ...params, offset: undefined }
+  return useInfiniteQuery<BrowseResponse, Error, { pages: BrowseResponse[] }, readonly unknown[], number>({
+    queryKey: queryKeys.browse(filters),
+    queryFn: ({ signal, pageParam }) => getBrowse({ ...filters, offset: pageParam }, signal),
+    initialPageParam: 0,
+    getNextPageParam: (last) => (last.has_more ? last.next_offset : undefined),
     enabled,
     staleTime: STALE_MS,
   })

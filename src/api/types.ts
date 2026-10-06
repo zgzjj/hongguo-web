@@ -31,8 +31,11 @@ export const BROWSE_SORTS: readonly { id: BrowseSort; name: string }[] = [
   { id: 'hot_collect', name: '最高收藏' },
 ] as const
 
-/** 服务端没有 offset/page 参数, 只能靠 limit 一次多取 */
-export const BROWSE_LIMIT = 60
+/**
+ * /browse 首屏一次取多少条。翻页本身走 offset(见 useBrowseInfinite), 这里只管第一批:
+ * 服务端是逐页 18 条往上凑的, 实测 60 条约 3 秒、120 条约 6 秒 —— 再大首屏就光看骨架屏了。
+ */
+export const BROWSE_LIMIT = 100
 
 /** 剧(列表项)。/rank、/latest、/browse 共用这套字段, 各自多几个专有字段。 */
 export interface Series {
@@ -153,6 +156,14 @@ export interface BrowseResponse {
   count: number
   note: string
   items: Series[]
+  /**
+   * 翻页游标。厂商后端只认 limit, 这三个字段是自研后端补的 ——
+   * 老后端不带它们, 此时 has_more 为 undefined, 前端就当"没有下一页"处理。
+   */
+  offset?: number
+  /** 下一页要传的 offset */
+  next_offset?: number
+  has_more?: boolean
 }
 
 export interface EpisodesResponse {
@@ -176,4 +187,6 @@ export interface BrowseParams {
   days?: string
   status?: string
   limit?: number
+  /** 翻页游标, 首次 0。由 useBrowseInfinite 的 pageParam 注入, 调用方别自己设 —— 它不进 queryKey */
+  offset?: number
 }

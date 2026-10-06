@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useBrowse, useFilters } from '@/api/queries'
+import { useBrowseInfinite, useFilters } from '@/api/queries'
 import { BROWSE_LIMIT } from '@/api/types'
-import type { BrowseParams, BrowseSort, FilterRow, Genre } from '@/api/types'
+import type {
+  BrowseParams,
+  BrowseResponse,
+  BrowseSort,
+  FilterRow,
+  Genre,
+  Series,
+} from '@/api/types'
 import { SectionHeader } from '@/components/SectionHeader'
 import { SeriesGrid } from '@/components/SeriesGrid'
 import { Chip, ChipRow } from '@/components/ui/Chip'
@@ -57,6 +64,23 @@ function buildParams(genre: Genre, rows: FilterRow[], selection: Selection): Bro
   return params
 }
 
+/**
+ * 各页拼成一串并按 series_id 去重。
+ * 上游是按位置分页的, 列表在两次请求之间会漂移, 相邻页难免带回来几部重复的。
+ */
+function mergePages(pages: BrowseResponse[] | undefined): Series[] {
+  const seen = new Set<string>()
+  const out: Series[] = []
+  for (const page of pages ?? []) {
+    for (const item of page.items) {
+      if (seen.has(item.series_id)) continue
+      seen.add(item.series_id)
+      out.push(item)
+    }
+  }
+  return out
+}
+
 export function ExplorePage() {
   const [genre] = useGenre()
   const [selection, setSelection] = useState<Selection>({})
@@ -74,7 +98,8 @@ export function ExplorePage() {
   )
 
   const params = useMemo(() => buildParams(genre, rows, selection), [genre, rows, selection])
-  const browse = useBrowse(params, rows.length > 0)
+  const browse = useBrowseInfinite(params, rows.length > 0)
+  const items = useMemo(() => mergePages(browse.data?.pages), [browse.data])
 
   const picked = Object.values(selection).filter(Boolean).length
 
@@ -127,13 +152,17 @@ export function ExplorePage() {
       ) : null}
 
       <SectionHeader icon="explore" title="筛选结果">
-        <span className="explore__count">服务端不支持翻页，一次最多 {BROWSE_LIMIT} 条</span>
+        <span className="explore__count">
+          {items.length > 0 ? `已加载 ${items.length} 部` : null}
+        </span>
       </SectionHeader>
 
       <SeriesGrid
-        items={browse.data?.items}
+        items={items}
         loading={browse.isPending || filters.isPending}
-        error={browse.error ?? filters.error}
+        // 已经有内容时不下沉错误: SeriesGrid 的 error 分支优先于 items, 翻页失败会把
+        // 先前翻出来的几百条整屏换成错误提示。翻页的失败交给下面按钮自己说。
+        error={items.length > 0 ? undefined : (browse.error ?? filters.error)}
         onRetry={() => {
           void filters.refetch()
           void browse.refetch()
@@ -141,6 +170,21 @@ export function ExplorePage() {
         skeletonCount={18}
         emptyText="没有符合条件的剧集，换个条件试试"
       />
+
+      {browse.hasNextPage ? (
+        <button
+          type="button"
+          className={`explore__more${browse.isFetchNextPageError ? ' explore__more--error' : ''}`}
+          disabled={browse.isFetchingNextPage}
+          onClick={() => void browse.fetchNextPage()}
+        >
+          {browse.isFetchingNextPage
+            ? '加载中…'
+            : browse.isFetchNextPageError
+              ? '这一页没取回来，点这里重试'
+              : '加载更多'}
+        </button>
+      ) : null}
     </div>
   )
 }
