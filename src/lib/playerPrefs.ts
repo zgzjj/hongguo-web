@@ -16,8 +16,11 @@ export const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2] as const
 export const BRIGHTNESS_MIN = 0.4
 export const BRIGHTNESS_MAX = 1.8
 
-/** 首次进入按静音起播 —— 浏览器只放行静音自动播放, 用户开过声音之后就不再拦 */
-const DEFAULTS: PlayerPrefs = { volume: 1, muted: true, rate: 1, brightness: 1 }
+/**
+ * 默认带声音。浏览器只放行"用户已经跟页面交互过"的带声音自动播放,
+ * 放行不了时由播放器临时静音兜底(画面先动起来, 点一下补上声音) —— 不在这里预先静音。
+ */
+const DEFAULTS: PlayerPrefs = { volume: 1, muted: false, rate: 1, brightness: 1 }
 
 const store = createPersistentStore<PlayerPrefs>(STORAGE_KEYS.player, DEFAULTS)
 

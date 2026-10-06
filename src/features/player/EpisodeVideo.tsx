@@ -64,6 +64,8 @@ export function EpisodeVideo({
   const [state, setState] = useState<VideoState>('loading')
   const [slow, setSlow] = useState(false)
   const [started, setStarted] = useState(false)
+  /** 浏览器没放行带声音自动播放, 画面先静音播着 —— 等用户碰一下再把声音补上 */
+  const [needsGesture, setNeedsGesture] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [canFullscreen, setCanFullscreen] = useState(false)
   const { prefs, update } = usePlayerPrefs()
@@ -114,12 +116,41 @@ export function EpisodeVideo({
     if (next) setState(next)
   }, [])
 
+  /**
+   * 起播。默认带声音 —— 浏览器只放行"用户已经跟页面交互过"的带声音自动播放,
+   * 拦下来时先临时静音把画面放起来(不动 prefs), 等用户碰一下再补声音。
+   * 直接甩一个静止画面加"点击播放"按钮, 比这差得多。
+   */
   const play = useCallback(() => {
     const video = videoRef.current
     if (!video) return
     // 不在这里置 loading: 从暂停恢复不该弹"正在准备视频", 真正的缓冲由 onWaiting 报
-    void video.play().catch(reportPlayFailure)
+    void video.play().then(
+      () => {
+        // 带着声音播起来了才算浏览器放行; 临时静音状态下成功正是 needsGesture 要表达的
+        if (!video.muted) setNeedsGesture(false)
+      },
+      (error: unknown) => {
+        if (error instanceof DOMException && error.name === 'NotAllowedError') {
+          video.muted = true
+          setNeedsGesture(true)
+          void video.play().catch(reportPlayFailure)
+          return
+        }
+        reportPlayFailure(error)
+      },
+    )
   }, [reportPlayFailure])
+
+  /** 用户碰一下, 把声音按偏好交还 —— 浏览器这时才放行 */
+  const enableSound = useCallback(() => {
+    const video = videoRef.current
+    if (!video || !needsGesture) return
+    video.muted = prefs.muted
+    setNeedsGesture(false)
+    // 暂停状态下改 muted 就够了; 正在播的再 play() 一次, 让 Safari 也认这个手势
+    if (!video.paused) void video.play().catch(() => {})
+  }, [needsGesture, prefs.muted])
 
   /** 重试得让浏览器重新走一遍资源选择 —— 光调 play() 不会重发那个失败的请求 */
   const retry = useCallback(() => {
@@ -127,8 +158,8 @@ export function EpisodeVideo({
     if (!video) return
     setState('loading')
     video.load()
-    void video.play().catch(reportPlayFailure)
-  }, [reportPlayFailure])
+    play()
+  }, [play])
 
   // 换源(换集/换剧)时把这一屏的界面状态清干净。
   // 放在渲染期而不是 effect 里: effect 会晚一帧, 那一帧里上一集的 state 还挂在界面上。
@@ -195,6 +226,8 @@ export function EpisodeVideo({
     <div
       ref={shellRef}
       className="ep-video"
+      // 开声只挂在 <video> 的 onClick 上: 同一个手势里 pointerdown 先到、click 后到,
+      // 两处都开声会让 click 那一拍读到已经翻新的 needsGesture, 顺手把画面切成暂停。
       onPointerDown={poke}
       // 鼠标移进来就把控件叫出来; 手指滑动不算"想看控件", 免得一划就闪一下
       onPointerMove={(event) => {
@@ -222,6 +255,11 @@ export function EpisodeVideo({
         tabIndex={active ? 0 : -1}
         aria-label={`第 ${episode.index} 集，空格键播放或暂停`}
         onClick={() => {
+          // 声音被浏览器拦着的时候, 第一下先把声音补上, 不顺手切暂停
+          if (needsGesture) {
+            enableSound()
+            return
+          }
           // 控件藏着的时候, 第一下只是把它叫出来, 不顺手切暂停
           if (!controlsVisible) {
             poke()
@@ -248,7 +286,7 @@ export function EpisodeVideo({
       {active && state === 'loading' ? (
         <div className="ep-video__overlay" role="status">
           <Icon name="spinner" size={30} className="ep-video__spin" />
-          <p className="ep-video__msg">{slow ? '首次播放需要下载并解密，请稍候…' : '正在准备视频…'}</p>
+          <p className="ep-video__msg">{slow ? '正在准备视频，还需要一点时间…' : '正在准备视频…'}</p>
           {slow ? <p className="ep-video__sub">这一集播过一次之后就是秒开</p> : null}
         </div>
       ) : null}
@@ -265,12 +303,20 @@ export function EpisodeVideo({
 
       {active && state === 'error' ? (
         <div className="ep-video__overlay">
-          <p className="ep-video__msg">这一集取流失败了</p>
+          <p className="ep-video__msg">这一集加载失败了</p>
           <button type="button" className="ep-video__action" onClick={retry}>
             <Icon name="refresh" size={16} />
             重试
           </button>
         </div>
+      ) : null}
+
+      {/* 浏览器不放行带声音自动播放时: 画面已经静音播起来了, 提示碰一下把声音补上 */}
+      {active && needsGesture && state === 'ready' ? (
+        <button type="button" className="ep-video__sound" onClick={enableSound}>
+          <Icon name="volumeMute" size={14} />
+          点一下开启声音
+        </button>
       ) : null}
 
       {active ? (

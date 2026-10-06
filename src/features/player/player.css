@@ -164,6 +164,42 @@
   pointer-events: auto;
 }
 
+/*
+ * 带声音自动播放被浏览器拦下时的提示。画面此刻已经在静音播着, 这个胶囊只负责把声音叫回来,
+ * 所以它不能像 .ep-video__overlay 那样铺满整屏挡住画面。放右下角: 避开底部控制条,
+ * 也尽量不占竖向滑动的起手区。
+ */
+.ep-video__sound {
+  position: absolute;
+  right: 14px;
+  bottom: calc(env(safe-area-inset-bottom) + 104px);
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-full);
+  background: rgba(10, 10, 15, 0.82);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  pointer-events: auto;
+  animation: ep-sound-in 240ms var(--ease) both;
+}
+
+@keyframes ep-sound-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ============ 控制条 ============ */
 /*
  * touch-action: pan-y 是这里的关键 —— 控制条自己收指针事件(滑块要能拖),
