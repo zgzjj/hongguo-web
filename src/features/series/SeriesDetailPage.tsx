@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { coverUrl } from '@/api/endpoints'
-import { useEpisodes } from '@/api/queries'
+import { useEpisodes, useSeasons } from '@/api/queries'
 import { Poster } from '@/components/Poster'
 import { StateBlock } from '@/components/ui/StateBlock'
 import { Icon } from '@/components/ui/Icon'
@@ -9,6 +9,7 @@ import { errorMessage } from '@/lib/error'
 import { formatDate } from '@/lib/format'
 import { metaToSeries, parseCelebrities } from '@/lib/series'
 import { EpisodeGrid } from './EpisodeGrid'
+import { SeasonRail } from './SeasonRail'
 import './series-detail.css'
 
 export function SeriesDetailPage() {
@@ -18,6 +19,9 @@ export function SeriesDetailPage() {
   const { data, isPending, error, refetch } = useEpisodes(seriesId)
   const progress = useProgress(seriesId)
   const { favorited, toggle } = useFavoriteState(seriesId)
+  // 后端是拿剧名去搜索匹配的, 所以要等 meta 拿到剧名才能问 —— hook 不能放在 early return 后面,
+  // 这里先传空串, enabled 会挡住, 拿到 title 后自动开跑。
+  const seasons = useSeasons(seriesId, data?.meta.title ?? '')
 
   if (isPending) {
     return <StateBlock state="loading" variant="skeleton" skeletonCount={6} />
@@ -38,6 +42,8 @@ export function SeriesDetailPage() {
   const hasResume = progress > 0
   // 只有真人剧有演员表, 漫剧/AI剧是空数组 —— 空就整段不渲染
   const cast = parseCelebrities(meta.celebrities)
+  // 不分季的剧返回空数组, 同样整段不渲染(加载中/失败也一样, 不为一个附加区块弹报错)
+  const otherSeasons = seasons.data?.items ?? []
 
   return (
     <article className="detail">
@@ -126,6 +132,13 @@ export function SeriesDetailPage() {
               </li>
             ))}
           </ul>
+        </section>
+      ) : null}
+
+      {otherSeasons.length > 0 ? (
+        <section className="detail__seasons">
+          <h2 className="detail__section-title">其他季</h2>
+          <SeasonRail seasons={otherSeasons} />
         </section>
       ) : null}
 

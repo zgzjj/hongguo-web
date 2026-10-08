@@ -164,6 +164,10 @@
   margin-bottom: 44px;
 }
 
+.detail__seasons {
+  margin-bottom: 44px;
+}
+
 .cast-rail {
   display: flex;
   gap: 16px;

@@ -8,7 +8,9 @@ import type {
   LatestResponse,
   RankBoard,
   RankResponse,
+  SearchGenre,
   SearchResponse,
+  SeasonsResponse,
   Series,
   SeriesMeta,
 } from './types'
@@ -63,9 +65,32 @@ export function getEpisodes(seriesId: string, signal?: AbortSignal): Promise<Epi
   })
 }
 
-/** 搜索当前不可用(红果网关要求已注册设备身份), 调用方需做降级处理 */
-export function getSearch(query: string, signal?: AbortSignal): Promise<SearchResponse> {
-  return apiGet<SearchResponse>('/search', { params: { q: query }, signal })
+/**
+ * 搜索。走 novelfm 公开接口(官方桌面版同源), 不需要签名/设备身份。
+ * genre 必传: 同名剧在真人/动漫两个 tab 里是两部不同的剧, 不指定会串。
+ */
+export function getSearch(
+  query: string,
+  genre: SearchGenre,
+  signal?: AbortSignal,
+): Promise<SearchResponse> {
+  return apiGet<SearchResponse>('/search', { params: { q: query, genre }, signal })
+}
+
+/**
+ * 同一部剧的其他季。上游没有这个接口 —— 后端拿剧名去搜索再按基础名匹配,
+ * 所以 title 必须一起传(带不带季号都行)。series_id 也必传: 后端靠它认准
+ * 这部剧属于哪个 tab, 否则同名剧会串季。
+ */
+export function getSeasons(
+  seriesId: string,
+  title: string,
+  signal?: AbortSignal,
+): Promise<SeasonsResponse> {
+  return apiGet<SeasonsResponse>('/seasons', {
+    params: { series_id: seriesId, title },
+    signal,
+  })
 }
 
 /** 封面是 HEIC, 必须走后端 /img 代理转 JPEG */

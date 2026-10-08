@@ -1,0 +1,76 @@
+.season-rail {
+  display: flex;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+.season-rail > li {
+  flex: 0 0 auto;
+}
+
+.season-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 104px;
+}
+
+.season-card__poster {
+  width: 104px;
+}
+
+/*
+ * 季号角标压封面左上角。
+ * 别放左下角 —— 实测这家的海报把剧名烧在下半部, 角标会正好盖住"万妖图录传第一季"
+ * 那几个字, 和画面里的标题打架。左上角通常是纯插画, 右上角留给热度角标。
+ */
+.season-card__badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  height: 20px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--r-sm);
+  background: rgba(6, 7, 10, 0.72);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.season-card__title,
+.season-card__eps {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.season-card__title {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+  transition: color var(--dur) var(--ease);
+}
+
+.season-card:hover .season-card__title {
+  color: var(--accent);
+}
+
+.season-card__eps {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+@media (max-width: 720px) {
+  .season-card,
+  .season-card__poster {
+    width: 88px;
+  }
+
+  .season-card__badge {
+    left: 6px;
+    top: 6px;
+  }
+}

@@ -6,8 +6,9 @@ import {
   getLatest,
   getRank,
   getSearch,
+  getSeasons,
 } from './endpoints'
-import type { BrowseParams, BrowseResponse, Genre, RankBoard } from './types'
+import type { BrowseParams, BrowseResponse, Genre, RankBoard, SearchGenre } from './types'
 
 /**
  * 服务端数据全是只读 GET, 且后端自己带缓存 ——
@@ -22,7 +23,8 @@ export const queryKeys = {
   filters: (genre: Genre) => ['filters', genre] as const,
   browse: (params: BrowseParams) => ['browse', params] as const,
   episodes: (seriesId: string) => ['episodes', seriesId] as const,
-  search: (query: string) => ['search', query] as const,
+  search: (query: string, genre: SearchGenre) => ['search', query, genre] as const,
+  seasons: (seriesId: string) => ['seasons', seriesId] as const,
 }
 
 export function useRank(board: RankBoard, limit = 30, enabled = true) {
@@ -87,12 +89,24 @@ export function useEpisodes(seriesId: string) {
   })
 }
 
-/** 搜索当前不可用(红果网关要求已注册设备身份), 失败时调用方需降级 */
-export function useSearch(query: string) {
+export function useSearch(query: string, genre: SearchGenre) {
   return useQuery({
-    queryKey: queryKeys.search(query),
-    queryFn: ({ signal }) => getSearch(query, signal),
+    queryKey: queryKeys.search(query, genre),
+    queryFn: ({ signal }) => getSearch(query, genre, signal),
     enabled: query.length > 0,
     retry: false,
+  })
+}
+
+/**
+ * 其他季。只有详情页用。
+ * 不分季的剧会返回空数组 —— 调用方据此整段不渲染, 而不是显示一个空标题。
+ */
+export function useSeasons(seriesId: string, title: string) {
+  return useQuery({
+    queryKey: queryKeys.seasons(seriesId),
+    queryFn: ({ signal }) => getSeasons(seriesId, title, signal),
+    enabled: Boolean(seriesId && title),
+    staleTime: STALE_MS,
   })
 }

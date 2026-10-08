@@ -8,11 +8,28 @@ export type RankBoard = 'recommend' | 'hot' | 'new'
 /** /browse 的 sort 实测可接受四个值, 但 /filters 只暴露前三个 */
 export type BrowseSort = 'online_time' | 'hot_score' | 'hot_collect' | 'score'
 
+/**
+ * 搜索体裁。上游搜索只有两个 tab(真人短剧 / 漫剧), AI 剧在厂商侧就归在漫剧 tab 里 ——
+ * 实测拿 AI 剧标题去搜, 漫剧 tab 3/3 命中自己, 短剧 tab 0/3。所以搜索只给这两个选项:
+ * 再单列一个「AI剧」会和「漫剧」返回同一批结果, 只会让人以为搜错了。
+ */
+export type SearchGenre = 'short_play' | 'comic_series'
+
 export const GENRES: readonly { id: Genre; name: string }[] = [
   { id: 'short_play', name: '真人剧' },
   { id: 'comic_series', name: '漫剧' },
   { id: 'ai_series', name: 'AI剧' },
 ] as const
+
+/** 搜索页的类型切换。名称用「动漫剧」是因为这个 tab 同时装着漫剧和 AI 剧。 */
+export const SEARCH_GENRES: readonly { id: SearchGenre; name: string }[] = [
+  { id: 'short_play', name: '真人剧' },
+  { id: 'comic_series', name: '动漫剧' },
+] as const
+
+export function isSearchGenre(value: string | null): value is SearchGenre {
+  return SEARCH_GENRES.some((item) => item.id === value)
+}
 
 /**
  * 注意: 三个榜单在后端全部映射到漫剧(comic_series_*)。
@@ -67,6 +84,8 @@ export interface Series {
   /** 仅 /browse: 后端拼好的播放/取集地址 */
   stream_url?: string
   episodes_url?: string
+  /** 仅 /search、/seasons: 标题里的季号原文, 如 "第十三季"; 没有季号是空串 */
+  season?: string
 }
 
 export interface Episode {
@@ -174,7 +193,21 @@ export interface EpisodesResponse {
 
 export interface SearchResponse {
   query: string
+  genre: SearchGenre
   results: Series[]
+}
+
+/**
+ * 同一部剧的其他季。上游没有这个接口 —— 后端是拿剧名去搜索、再按基础名匹配出来的,
+ * 所以 items 里不会包含当前这一季。
+ */
+export interface SeasonsResponse {
+  series_id: string
+  title: string
+  /** 剥掉季号后的基础名, 后端就是按它匹配的 */
+  base_title: string
+  count: number
+  items: Series[]
 }
 
 export interface BrowseParams {
